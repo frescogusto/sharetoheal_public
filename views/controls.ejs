@@ -1,0 +1,105 @@
+<%- include('header') %>
+
+<h1>controls</h1>
+
+
+
+
+<form class="controls" action="/update_info" method="POST">
+
+    <!-- <div>
+    <h3>session id</h3><%= info.sessionId %>
+  </div> -->
+    <div>
+        <h3>session title</h3>
+        <input type="text" id="sessionTitle" name="sessionTitle" value="<%= info.sessionTitle %>">
+    </div>
+    <div>
+        <h3>max participants</h3>
+        <input type="text" id="maxParticipants" name="maxParticipants" value="<%= info.maxParticipants %>">
+    </div>
+    <div>
+        <h3>currentParticipants</h3>
+        <%= info.currentParticipants %>
+    </div>
+    <!-- <div>
+    <h3>is open</h3>
+    <%= info.isOpen %>
+  </div>
+  <div>
+    <h3>is ready</h3>
+    <%= info.isReady %>
+  </div> -->
+
+    <button class="button" type="submit">update info</button>
+
+</form>
+
+
+<%if (!info.isOpen) { %>
+<form action="/open_workshop" method="POST">
+    <button class="button" type="submit">open workshop</button>
+</form>
+<% } %>
+
+<%if (!info.isReady && info.isOpen) { %>
+<form class="shuffle_button" action="/start" method="POST">
+    <button class="button" type="submit">shuffle stories</button>
+</form>
+<% } %>
+
+<%if (info.isReady && info.isOpen) { %>
+<form class="end_button" action="/end_session" method="POST">
+    <button class="button" type="submit">end workshop</button>
+</form>
+<% } %>
+
+<div class="prompt_wrapper wrapper_center">
+    <div class="prompt">
+        <h2>Are you sure?</h2>
+        <div class="prompt_button prompt_confirm button">
+            YES
+        </div>
+        <div class="prompt_button prompt_deny button">
+            NO
+        </div>
+    </div>
+</div>
+<!--promp wrapper-->
+
+<script>
+    let currentPrompt = '/start'
+
+    if (document.querySelector('.end_button')) {
+        document.querySelector('.end_button').addEventListener('click', function (e) {
+            e.preventDefault();
+            currentPrompt = '/end_session'
+            document.querySelector('.prompt_wrapper').classList.add('visible')
+        });
+    }
+
+    if (document.querySelector('.shuffle_button')) {
+        document.querySelector('.shuffle_button').addEventListener('click', function (e) {
+            e.preventDefault();
+            currentPrompt = '/start'
+            document.querySelector('.prompt_wrapper').classList.add('visible')
+        });
+    }
+
+    document.querySelector('.prompt_confirm').addEventListener('click', function (e) {
+        e.preventDefault();
+        httpPost(currentPrompt, {}, function (res) {
+            window.location.replace(res);
+        })
+        document.querySelector('.prompt_wrapper').classList.remove('visible')
+    });
+
+    document.querySelector('.prompt_deny').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.prompt_wrapper').classList.remove('visible')
+    });
+</script>
+
+
+
+<%- include('footer') %>

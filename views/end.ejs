@@ -1,0 +1,13 @@
+<%- include('header') %>
+
+<div class="welcome wrapper_center">
+    <h1><%= content.thanks_for_coming %></h1>
+</div>
+
+<script>
+    setTimeout(() => {
+        window.location.replace("/archive");
+    }, 2 * 1000);
+</script>
+
+<%- include('footer') %>

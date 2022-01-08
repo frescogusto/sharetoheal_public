@@ -1,0 +1,39 @@
+<%- include('header') %>
+
+<div class="wrapper_center">
+    <div>
+        <!-- <h1>user</h1> -->
+        <div class="user_wrapper">
+            <div class="wrapper_center">
+                <div class="user_current_workshop">
+                    <div>
+                        <%if (info.isOpen) { %>
+                        <div>
+                            <h1> <%= content.current_workshop %> </h1>
+                            <div><%= info.sessionTitle %></div>
+                            <div>
+                                <%= content.participants %>: <%= info.currentParticipants %> /
+                                <%= info.maxParticipants %>
+                            </div>
+                            <div class="wrapper_center">
+
+                                <button class="bt_submit" type="submit"><a href="/workshop"><span>&#9654;</span>
+                                        <p><%= content.boton %></p>
+                                    </a></button>
+                            </div>
+                        </div>
+                        <% } else { %>
+                        <h1> <%= content.no_workshop_currently_available %> </h1>
+                        <% } %>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%- include('user_bar') %>
+
+<%- include('footer') %>

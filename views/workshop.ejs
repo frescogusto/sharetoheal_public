@@ -1,0 +1,88 @@
+<%- include('header') %>
+
+
+
+<div class="welcome wrapper_center">
+    <h1>
+        <%= content.welcome_to_the_workshop %>
+    </h1>
+</div>
+
+<div class="wrapper_center">
+    <div class='cont_form'>
+        <div>
+            <h1><%= content.story %></h1>
+        </div>
+        <form action="/story" method="POST" class="story_form">
+            <div>
+                <label for="title"><%= content.story_title %></label><br>
+                <input type="text" id="title" name="title">
+            </div>
+            <div>
+                <label for="body"><%= content.story %></label><br>
+                <textarea type="text" id="body" name="body" required></textarea>
+            </div>
+            <div>
+                <label for="keywords"><%= content.story_keywords %></label><br>
+                <input type="text" id="keywords" name="keywords">
+            </div>
+            <div>
+                <label for="location"><%= content.story_location %></label><br>
+                <input type="text" id="location" name="location">
+            </div>
+        </form>
+        <div class="wrapper_center">
+            <div class="play_button">
+                <button class="bt_submit" type="submit"><a href="/workshop"><span>&#9654;</span>
+                        <p><%= content.boton %></p>
+                    </a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="prompt_wrapper wrapper_center">
+    <div class="prompt">
+        <h2><%= content.prompt_question %></h2>
+        <div class="prompt_button prompt_confirm button">
+            <%= content.prompt_yes %>
+        </div>
+        <div class="prompt_button prompt_deny button">
+            <%= content.prompt_no %>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.querySelector('.play_button').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.prompt_wrapper').classList.add('visible')
+    });
+
+    document.querySelector('.prompt_confirm').addEventListener('click', function (e) {
+        e.preventDefault();
+        data = {
+            title: document.querySelector('#title').value,
+            body: document.querySelector('#body').value,
+            keywords: document.querySelector('#keywords').value,
+            location: document.querySelector('#location').value,
+        }
+        httpPost('/story', data, function (res) { // we send the story to the server
+            window.location.replace("/room"); // when the server responds, we go to the "room" page
+        })
+    });
+
+    document.querySelector('.prompt_deny').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.prompt_wrapper').classList.remove('visible')
+    });
+
+    setTimeout(() => {
+        document.querySelector('.welcome').style.display = "none"
+    }, 2 * 1000);
+</script>
+
+
+<%- include('footer') %>

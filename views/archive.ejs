@@ -1,0 +1,29 @@
+<%- include('header') %>
+
+<h1> <%= content.title_archive %></h1>
+
+<!-- for loop to show all workshops -->
+<% for (var i = 0; i < workshops.length; i++) { %> 
+    <div class='wrapper_session'>
+        <h2><%= workshops[i][1][0].sessionTitle %></h2>
+        <!-- for loop to show all stories of the workshop -->
+        <% for (var j = 0; j < workshops[i][1].length; j++) { %>
+            <div class="user_story">
+                <h3><%= workshops[i][1][j].title %></h3>
+                <div class="story_keywords">
+                    <%= workshops[i][1][j].keywords %>
+                </div>
+                <div class="story_body">
+                    <%= workshops[i][1][j].body %>
+                </div>
+                <div class="story_answer">
+                    <%= workshops[i][1][j].answer %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+<% } %>
+
+
+<%- include('footer') %>

@@ -1,0 +1,26 @@
+<!-- this is the bottom bar viewed in the USER page -->
+<!-- it gives the ability to change the nickname (also called "pseudonym") -->
+<div class="login_wrapper">
+    <div class="login_info">
+        <div class="login_nickname">
+            <form action="/nickname" method="POST" class="login_nickname">
+                <input type="text" id="nickname" name="nickname" placeholder="<%= content.pseudonym %>" required
+                    value="<%= nickname %>"></input>
+                <button class="login_edit" type="submit"><%= content.update %> &#8634; </button>
+            </form>
+        </div>
+        <%if (nickname_updated) { %>
+        <div class="nickname_updated">
+            <%= content.pseudonym_updated %>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    if (document.querySelector('.nickname_updated')) {
+        setTimeout(() => {
+            document.querySelector('.nickname_updated').classList.add('hidden')
+        }, 3 * 1000);
+    }
+</script>

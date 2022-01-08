@@ -1,0 +1,261 @@
+<%- include('header') %>
+
+<div class=" wrapper_center">
+    <%if (welcomeBack) { %>
+    <h2>WELCOME BACK</h2>
+    <% } %>
+    <div class="waiter">
+        <h1>
+            <%= content.starting_soon %>
+        </h1>
+    </div>
+    <div class="cont_room">
+        <!-- <h1>room</h1> -->
+        <div class="heal_button button">
+            <%= content.heal %>
+        </div>
+        <div class="mapping_button button">
+            <%= content.map %>
+        </div>
+        <div class="story_wrapper">
+            <div class="story_for_me">
+                <div class="story-title"></div>
+                <div class="story-body"></div>
+                <div class="story-tags"></div>
+            </div>
+            <div class="answer">
+                <form action="/answer" method="POST" class="answer_form">
+                    <div>
+                        <div>
+                            <label for="answer"><%= content.your_proposal %></label><br>
+                            <textarea type="text" id="answer" name="answer" required></textarea>
+                        </div>
+                    </div>
+                    <!-- <button type="submit">submit</button> -->
+                </form>
+                <div class="wrapper_center">
+                    <div class="play_button">
+                        <button class="bt_submit" type="submit"><a href="/workshop"><span>&#9654;</span>
+                                <p><%= content.boton %></p>
+                            </a></button>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- story wrapper-->
+
+        <div class="prompt_wrapper wrapper_center">
+            <div class="prompt">
+                <h2><%= content.prompt_question %></h2>
+                <div class="prompt_button prompt_confirm button">
+                    <%= content.prompt_yes %>
+                </div>
+                <div class="prompt_button prompt_deny button">
+                    <%= content.prompt_no %>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="allStories">
+
+        </div>
+    </div>
+
+    <div class="jitsi_meet"></div>
+</div>
+
+
+<script src='https://meet.jit.si/external_api.js'></script>
+
+
+
+<script>
+    // this creates a new jitsi room using jitsi API
+    let joined = false;
+    const domain = 'meet.jit.si';
+    const options = {
+        roomName: 'share-to-heal',
+        width: '100%',
+        height: '100%',
+        parentNode: document.querySelector('.jitsi_meet'),
+        configOverwrite: {
+            // prejoinPageEnabled: false
+        },
+    };
+    const api = new JitsiMeetExternalAPI(domain, options);
+
+    api.executeCommand('displayName', '<%= nickname %>'); // automatically changes the display name to the user nickname
+
+    api.addListener('videoConferenceJoined', (data) => {
+        console.log("video conference joined");
+        console.log(data);
+        joined = true
+        if (currentStep == 2) { // if we have yet to answer the story
+            wasReady = false
+            getInfo()
+        }
+    })
+
+    document.querySelector('.answer').style.display = "none"
+
+    // add toggle behaviour to the buttons
+    document.querySelector('.heal_button').addEventListener('click', function (e) {
+        e.preventDefault();
+        toggleStory()
+    });
+    document.querySelector('.mapping_button').addEventListener('click', function (e) {
+        e.preventDefault();
+        toggleStories()
+    });
+
+    document.querySelector('.play_button').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.prompt_wrapper').classList.add('visible')
+    });
+
+    document.querySelector('.prompt_confirm').addEventListener('click', function (e) {
+        e.preventDefault();
+        storyForMe.answer = document.querySelector('#answer').value
+        // on prompt confirmation, the answer get sent to the server
+        httpPost('/answer', storyForMe, function (res) {
+            // when the servers receive the answer, this response function runs
+            let asd = JSON.parse(res)
+            console.log(asd);
+            end()
+        })
+        document.querySelector('.prompt_wrapper').classList.remove('visible')
+    });
+
+    document.querySelector('.prompt_deny').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.prompt_wrapper').classList.remove('visible')
+    });
+
+
+    let wasReady = false
+    let storyForMe;
+    let allStories;
+
+    // get current step from the ejs variable sent from the server together with the page
+    var currentStep = < %= currentStep % >
+
+    console.log("CURRENT STEP", currentStep);
+    // STEP 2 we didn't answer the story
+    // STEP 3 we answered the story
+
+    if (currentStep == 3) {
+        end()
+    }
+
+    getInfo()
+    setInterval(() => {
+        getInfo()
+    }, 5 * 1000);
+
+    function getInfo() {
+        httpGet('/info', function (res) {
+            info = JSON.parse(res)
+            // console.log("INFO", info, wasReady);
+            if (info.isReady && !wasReady) {
+                wasReady = true
+                getStoryForMe();
+                // start();
+            }
+            if (!info.isOpen) {
+                window.location.replace("/end");
+            }
+        })
+    }
+
+    function getStoryForMe() {
+        httpGet('/storyForMe', function (res) {
+            storyForMe = JSON.parse(res)
+            console.log(storyForMe);
+            viewHealButton()
+
+        })
+    }
+
+    function viewHealButton() {
+
+        if (!joined) {
+            document.querySelector('.waiter').style.display = "none"
+            return; // dont show button if user didnt join the room
+        }
+
+        // blur the screen
+        document.querySelector('.jitsi_meet').classList.add('hidden')
+
+        if (currentStep == 2) { // if we have yet to answer the story
+            document.querySelector('.heal_button').style.display = "inline-block"
+            document.querySelector('.waiter').style.display = "none"
+        }
+    }
+
+    function toggleStory() {
+        document.querySelector('.story-title').innerHTML = storyForMe.title
+        document.querySelector('.story-body').innerHTML = storyForMe.body
+        document.querySelector('.story-tags').innerHTML = storyForMe.keywords
+        document.querySelector('.answer').style.display = "block"
+
+        if (currentStep == 2) { // if we have yet to answer the story
+            document.querySelector('.story_wrapper').classList.toggle("visible")
+        }
+    }
+
+    function end() { // here we end the answer sending, and go back to the visible jitsi meeting
+
+        // unblur the screen
+        document.querySelector('.jitsi_meet').classList.remove('hidden')
+
+        document.querySelector('.story_wrapper').style.display = "none"
+        document.querySelector('.heal_button').style.display = "none"
+        document.querySelector('.mapping_button').style.display = "inline-block"
+        document.querySelector('.waiter').style.display = "none"
+
+        lookForStories();
+        setInterval(() => {
+            lookForStories();
+        }, 10 * 1000);
+
+    }
+
+    function lookForStories() {
+
+        httpGet('/stories', function (res) {
+            allStories = JSON.parse(res)
+            // console.log(allStories);
+            showStories()
+        })
+
+    }
+
+    function toggleStories() {
+        document.querySelector(".allStories").classList.toggle("visible")
+    }
+
+    function showStories() {
+
+        document.querySelector(".allStories").innerHTML = ""
+
+        allStories.forEach(story => {
+            if (story.answer != null) {
+
+                var div = document.createElement('div');
+                div.className = 'storylist';
+                div.innerHTML = "<p>" + story.title + "</p>" +
+                    "<p>" + story.keywords + "</p>" +
+                    "<p>By: " + story.author + "</p>" +
+                    "<p>Story | Relato: " + story.body + "</p>" +
+                    "<p>Proposal | Propuesta: " + story.answer + "</p>"
+                // "location: " + story.location
+                document.querySelector(".allStories").appendChild(div);
+
+            }
+        });
+    }
+</script>
+
+
+
+<%- include('footer') %>

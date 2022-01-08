@@ -1,0 +1,26 @@
+<%- include('header') %>
+
+<div class="wrapper_center">
+    <div>
+        <h1 class='logo'> <%= content.title_main %></h1>
+        <div class="about">
+            <%- content.about %>
+        </div>
+        <div>
+            <form action="/login" method="POST">
+                <div>
+                    <input class="email_login" type="email" id="email" name="email" placeholder="E-mail" required>
+                </div>
+                <div class="wrapper_center">
+                    <button class="bt_submit" type="submit"><span>&#9654;</span>
+                        <p><%= content.boton %></p>
+                    </button>
+
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<%- include('footer') %>
